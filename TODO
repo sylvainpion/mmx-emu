@@ -1,0 +1,19 @@
+- Make it work !  As a test-suite, use mmx_test.c.  Find other programs !
+- We should find out that operand decoding don't work in all cases...
+
+- Benchmark it !
+- Implement look-ahead (should be easy when cleaned up), and re-do the benchs.
+  NB: FPU_lookahead = 1;
+      if (current->flags & PF_PTRACED)
+        FPU_lookahead = 0;
+- put the Mod/rm decode in each small function, which becomes void padd(void),
+  this avoid useless tests for emms, and mov[dq] ?
+
+- Extend the emulation to AMD, Cyrix...  AMD 3DNow! ? MMX2 ...
+
+- The MMX-Emulator may allow combinaisons of operands that are not available on
+  real MMX.  This should not be a problem for "normal" emulation, but could
+  lead to problem.  Add a flag for exactness (e.g. via an environement
+  variable) ?
+
+- Use sigaction instead of signal.
