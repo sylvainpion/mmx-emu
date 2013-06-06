@@ -3,8 +3,6 @@
 #include <asm/sigcontext.h>
 #include "mmx_emu.h"
 
-extern struct sigcontext * context; 
-
 /* Error */
 void MMX_illegal(void *src, void *dest)
 {
@@ -43,4 +41,3 @@ void movd2mmx(void *src, void *dest) {
 	mmx_printf("movd2mmx called\n");
 	movd2mem(dest,src);
 }
-

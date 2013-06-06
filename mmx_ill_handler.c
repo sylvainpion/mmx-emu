@@ -19,6 +19,7 @@
 
 /* 52 non-bad insns (there should be 57, no ???).
  * Refer to http://developer.intel.com/drg/mmx/manuals/prm/PRM_APPD.HTM
+ * http://www.imada.ou.dk/~jews/PInfo/mmx.html  is interesting too.
  */
 
 static FUNC const mmx_insn[256] = {
@@ -132,17 +133,25 @@ void mmx_emu_main(void)
 {
         if (SIG_ERR == signal(SIGILL, mmx_ill_handler))
                 printf("SIG_ILL handler not installed sucessfully.\n");
+
+        printf("SIG_ILL handler installed by the MMX-emulator.\n");
 }
+
+int pshi_diff; // Used temporarily to differentiate pshi*.
+
 
 // The SIGILL handler properly.
 void mmx_ill_handler(int sig_nr)
 {
-	int pipo;
+	int pipo;	// HAS TO STAY HERE, till a cleaner solution is found.
+#ifdef MMX_DEBUG
 	int i, j;
+#endif
 	unsigned long mmx_eip;
 	u_char prefix, insn, modrm, mod; // sib;
 	unsigned rm;
 	void *src = NULL, *dest = NULL;
+	unsigned char immediate;
 
 	context = (struct sigcontext *) (&pipo + 4);
 		// Is there a cleaner way for that ?
@@ -191,9 +200,20 @@ void mmx_ill_handler(int sig_nr)
 			rm = modrm & 7;
 			mod = (modrm >> 6) & 3;
 			switch (mod) {
-			case 3: /* Source and dest are mmx registers. */
-				src  = &(context->fpstate->_st[rm]);
-				dest = &(context->fpstate->_st[(modrm>>3) & 7]);
+			case 3: /* Dirty, dirty, dirty... */
+				if ( (mmx_insn[insn] == pshimw) ||
+				     (mmx_insn[insn] == pshimd) ||
+				     (mmx_insn[insn] == pshimq) )
+				{
+					++mmx_eip;
+					immediate = *(unsigned char*)mmx_eip;
+					pshi_diff = (modrm>>3)&7;
+					src  = &immediate;
+					dest = &(context->fpstate->_st[rm]);
+				} else {
+					src  = &(context->fpstate->_st[rm]);
+					dest = &(context->fpstate->_st[(modrm>>3) & 7]);
+				};
 #ifdef MMX_DEBUG
 				printf("src  = %08lx (%%mm%d)\t", (long) src, rm);
 				printf("dest = %08lx (%%mm%d)\n", (long) dest, (modrm>>3) & 7);

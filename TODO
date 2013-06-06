@@ -1,19 +1,32 @@
-- Make it work !  As a test-suite, use mmx_test.c.  Find other programs !
-- We should find out that operand decoding don't work in all cases...
+- Arithmetic and packing functions are not done !
 
-- Benchmark it !
-- Implement look-ahead (should be easy when cleaned up), and re-do the benchs.
-  NB: FPU_lookahead = 1;
-      if (current->flags & PF_PTRACED)
-        FPU_lookahead = 0;
-- put the Mod/rm decode in each small function, which becomes void padd(void),
+- Test if the operand decoding work for pshi*.
+
+- Put the Mod/rm decode in each small function, which becomes void padd(void),
   this avoid useless tests for emms, and mov[dq] ?
 
-- Extend the emulation to AMD, Cyrix...  AMD 3DNow! ? MMX2 ...
+- Make it work !  As a test-suite, use mmx_test.c.  Find other programs !
 
-- The MMX-Emulator may allow combinaisons of operands that are not available on
-  real MMX.  This should not be a problem for "normal" emulation, but could
-  lead to problem.  Add a flag for exactness (e.g. via an environement
-  variable) ?
+- Benchmark the thing !
 
-- Use sigaction instead of signal.
+- Implement look-ahead (should be easy when cleaned up),
+  and re-do the benchs (and SMILE !! :-).
+  NB!!: FPU_lookahead = 1;
+        if (current->flags & PF_PTRACED)
+          FPU_lookahead = 0;
+
+- Extend the emulation to AMD, Cyrix...  AMD's 3DNow!, MMX2... FPU ? ...
+
+- Add options, via a environement variable (MMX_EMU_OPTS), to set behaviours,
+  such as: do we support other types of instructions set, do we strictly follow
+  the real behaviour, etc...
+
+- Use sigaction() instead of signal() ?
+
+- Tune compile options in the Makefile
+
+- Check why the logical functions do not work with long longs, they would be
+  cleaner.
+
+- Should we modify the TOS (cf Chapter 4 of Intel's doc) ?  There are also
+  other things to check...

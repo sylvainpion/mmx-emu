@@ -1,19 +1,20 @@
-This useless (but nice !) project of an MMX emulation library !
+Welcome to the MMX emulation library project !
 
-It provides a simple way to execute (slooowwwwly) binaries that use MMX
+It provides a simple way to execute (thus slowly) binaries that use MMX
 instructions, on processors that do not support them.
 
 It can be used if you want to develop MMX code, or execute MMX binaries, on a
-non-MMX CPU.  Note that well written MMX binaries should contain the equivalent
-non-MMX code, since the emulation will always be really slow, and MMX code is
-all about speed.
+non-MMX Intel compatible CPU.  Note that well written MMX binaries should
+contain the equivalent non-MMX code, since the emulation will always be really
+slow, and MMX code is all about speed.
 
-The code is, of course, placed under the LGPL.
-
-Example of how to make it work:
-LD_PRELOAD=/home/syl/prog/mmx-emu/libmmxemu.so   ./mmxtest
-
-To run mmxtest (taken from libmmx), you need mmx.h, that comes with libmmx.
+As a test program, I used mmxtest, from libmmx-980616, foundable on sunsite, in linux/libs.
 
 --
-<Sylvain.Pion@sophia.inria.fr>, June 1998.
+This code is copyrighted by the following authors, and placed under the LGPL
+(GNU's Library General Public License, cf www.gnu.org for details).
+
+Authors:
+Sylvain Pion <Sylvain.Pion@sophia.inria.fr>   [core, cmp, logic, shifts]
+OLK <delise@online-club.de>                   []
+Vincent Renardias <vincent@waw.com>           []

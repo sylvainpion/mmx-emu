@@ -1,0 +1,6 @@
+To build libmmxemu.so, just type "make".
+
+To make it work on "program", just type:
+
+LD_PRELOAD=/the/path/of/libmmxemu.so  program
+
