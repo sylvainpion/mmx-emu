@@ -1,0 +1,29 @@
+Release 0.6 beta.  23 October 1998
+
+- signal() replaced by sigaction(), no need to re-install the handler after
+  each SIGILL => one syscall less.
+- handling of the environment variables:
+  MMX_EMU_NO_LOOK_AHEAD, MMX_EMU_NO_CYRIX_EMMS, MMX_EMU_NO_AMD_3DNOW.
+- In case of bad instruction, that even MMX-Emu doesn't recognize, raise
+  SIGILL.
+- Added pointer to web page and mailing-list in the README.
+- mmx_ill_handler() takes struct sigcontext as 2nd argument... much better.
+- mmx_logical.c uses long longs.
+- mov* are written with a macro now.
+- split mmx_ill_handler.c into mmx_decode.c and mmx_ill_handler.c.
+- include/context.h to support compilation under 2.0.x kernels.
+- simple script "mmx-emu.sh" added.
+- Cyrix stuff integrated, not tested.
+- 3DNow! stuff integrated, not tested.
+- bug in movd2mmx (must zero dest[1]).
+- movd2mem <-> mov2mmx inversed in mmx_insn[], same for movq...
+- address computation re-written from scratch (from the specs).
+- Cyrix' mulhrw bug fixed.
+- mmx_emu.h renamed emu.h
+- mmx_saturate.h renamed saturate.h
+- updated the exponent of FP registers when using moves, and TOS word.
+- 3 booleans mmx_unit_present, emmx_unit_present and _3DNow_unit_present.
+
+Release 0.5 beta.  10 July 1998
+
+- MMX should work completely.

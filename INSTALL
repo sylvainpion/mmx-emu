@@ -8,3 +8,18 @@ To make it work on the program "program", just type:
 
 LD_PRELOAD=/the/path/of/libmmxemu.so  program
 
+Defining the following variable:	does the following action:
+
+MMX_EMU_NO_LOOK_AHEAD			emulate one instruction at a time
+					(useful for debugging)
+
+MMX_EMU_NO_CYRIX_EMMX			do not emulate the Cyrix EMMX
+					instructions (the default is to emulate
+					them too)
+
+MMX_EMU_NO_AMD_3DNOW			same thing for AMD's 3DNow! instruction
+					set
+
+
+You can also use the script "mmx-emu.sh" (edit it first), and simply type:
+mmx-emu.sh program

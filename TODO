@@ -1,33 +1,36 @@
 The never decreasing list of things to do:
 ------------------------------------------
 
-- Make it work !  As a test-suite, use mmx_test.c.  Find other programs !
-- Test if the operand decoding work for pshi*.
+- Fix the memory leak when running the queen problem... (MMX-emu bug ?)
+  Seems that %esp is touched by the emulation, when it shouldn't...
 
-- Put the Mod/rm decode in each small function, which becomes void padd(void),
-  this avoid useless tests for emms, and mov[dq] ?
+- Test Cyrix' EMMX, and AMD's 3DNow! (especially transcendental functions).
 
-- Extend the emulation to AMD, Cyrix...  AMD's 3DNow!, MMX2... FPU ? ...
-- Add options, via a environement variable (MMX_EMU_OPTS), to set behaviours,
-  such as: do we support other types of instructions set, do we strictly follow
-  the real behaviour, etc...
+- Use a union type (cf mmx_types.h) in the emulation functions ?
 
-- Check why the logical functions do not work with long longs, they would be
-  cleaner.
-
-- Should we modify the TOS (cf Chapter 4 of Intel's doc) ?  There are also
-  other things to check...
-
-- About the look-ahead, it should be disabled when tracing is enabled !!!
+- About the look-ahead, should it be disabled automatically when tracing ?
   NB:   FPU_lookahead = 1;
         if (current->flags & PF_PTRACED)
           FPU_lookahead = 0;
 
+- What about support for multi-threaded code ?  Is the emulator re-entrant ?
+  Anyway, which thread[s] gets the SIGILL in this case ?
+
+- About "struct sigcontext[_struct]".  With Glibc2, we only need:
+  #include <sigcontext.h>
+  without   asm/...
+  But it breaks compatibility with libc5, so we keep the current solution.
+
+- Extend the emulation to MMX2 ?  FPU ?
+
+- Port MMX-Emu to FreeBSD.  It should not be too hard I guess.
+  First install the beast ;-)
+
+- Finish the detection of the 3 features correctly (if CPUID doesn't
+  exist, nothing exists...).
+
 
 For speed:
 ----------
-- Benchmark the thing !
-
-- Use sigaction() instead of signal()  (one syscall less I guess) ?
-
-- Tune compile options in the Makefile.
+- Benchmark the thing, give indicative timings.
+- Tune CFLAGS in the Makefile.

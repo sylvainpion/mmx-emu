@@ -6,9 +6,9 @@ LDFLAGS =
 
 ## DO NOT CHANGE ANYTHING BELOW THIS LINE #####################################
 
-all:  mmxtest ../libmmxemu.so
+all test:  mmxtest ../libmmxemu.so
 	LD_PRELOAD=../libmmxemu.so ./mmxtest > mmxtest_out 2> mmxtest_err
-	cmp mmxtest_out mmxtest_err
+	cmp mmxtest_out mmxtest_err || diff mmxtest_out mmxtest_err
 
 mmxtest: mmxtest.o
 	$(CC) $(LDFLAGS) -o $@ $?

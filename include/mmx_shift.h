@@ -1,5 +1,5 @@
 /*
- * Emulation code of the shift functions.
+ * Emulation of the MMX shift functions.
  */
 
 extern void psrlw(void *, void *);

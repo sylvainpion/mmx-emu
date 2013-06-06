@@ -1,5 +1,5 @@
 /*
- * Emulation code of the conversion functions.
+ * Emulation of the MMX conversion functions.
  */
 
 extern void punpcklbw(void *, void *);
@@ -11,4 +11,3 @@ extern void punpckhbw(void *, void *);
 extern void punpckhwd(void *, void *);
 extern void punpckhdq(void *, void *);
 extern void packssdw(void *, void *);
-

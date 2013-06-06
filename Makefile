@@ -2,8 +2,13 @@
 
 .PHONY: test
 
+CC=egcc
+
 all:
 	$(MAKE) -C src
+	rm -f libmmxemu.so
+	cp src/libmmxemu.so .
+#	strip libmmxemu.so
 
 test:
 	$(MAKE) -C test

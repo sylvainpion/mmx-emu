@@ -1,5 +1,5 @@
 /*
- * Emulation code of the comparison functions.
+ * Emulation of the MMX comparison functions.
  */
 
 extern void pcmpgtb(void *, void *);

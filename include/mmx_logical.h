@@ -1,5 +1,5 @@
 /*
- * Emulation code of the logical functions.
+ * Emulation of the MMX logical functions.
  */
 
 extern void por(void *, void *);

@@ -1,0 +1,48 @@
+About : mmx_types.h
+By including mmx_types.h you have a C-Interface to access the mmx-world.
+Without even a need to have any mmx-hardware. Programs including mmx_types.h
+run on whatever non-mmx-CPU, of course on mmx-CPU's, too ;-)
+
+
+About : mmx_v1.c
+Just a testprogram showing how to use mmx_types.h
+
+
+About : Makefile
+make all or make "target" will do the job
+
+
+About : mmx_3dn.c
+The problem is that there is positive and negative Zero
+defined at AMD-3dn definitios. This is not handled at the moment
+in the pfcmpeq routine. I wanted to avoid as much overhead as
+possible, some routines can be done without fpu.
+The other point is that i consider Unsupported Values like NAN
+beeing processed as : NAN = NAN, will say pfcmpeq(nan,nan) -> "True"
+in fact the float definitions do that too. But AMD says they are
+Undifined.
+
+So for testing you can do the folowing:
+Try to play around with libmmxtest.c 
+(you know it uses the bl**dy c-iface)
+
+
+About: cpuspeed.c
+It shows the speed of your CPU by using the TSC-register
+
+
+Hint:
+You can pipe the results of the running programms into less examine
+the results more closely.
+
+
+
+Have Fun
+Oliver
+
+too short for loops, no asm stuff, 
+maybe src and dest is changed, pls chck out it's lill dirty
+and i'm in hurry, sorry
+-- 
+eMail : delise@online-club.de
+Linux - dat beste Textadventure wo gibt

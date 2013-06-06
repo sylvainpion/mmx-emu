@@ -1,5 +1,5 @@
 /*
- * Emulation code of the arithmetic functions.
+ * Emulation of the MMX arithmetic functions.
  */
 
 extern void paddusb(void *, void *);

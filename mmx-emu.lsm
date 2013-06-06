@@ -1,0 +1,20 @@
+Begin3
+Title:		mmx-emu
+Version:	0.6
+Entered-date:	22OCTOBER1998
+Description:	The MMX Emulator is a library providing transparent emulation
+		of the ix86 MMX instruction set.  It allows you to run MMX
+		binaries, or develop MMX programs on a non-MMX capable machine.
+Keywords:	MMX emulator
+Author: 	Sylvain.Pion@sophia.inria.fr (Sylvain Pion)
+		delise@online-club.de (Oliver Delise)
+		vincent@waw.com (Vincent Renardias)
+Maintained-by:	Sylvain.Pion@sophia.inria.fr (Sylvain Pion)
+Primary-site:	sunsite.unc.edu /pub/Linux/system/emulators
+		33kB mmx-emu-0.6.tar.gz
+		728  mmx-emu.lsm
+Alternate-site: http://www.inria.fr/prisme/personnel/pion/progs/mmx-emu
+Original-site:
+Platforms:	Intel compatible machines and Linux only.
+Copying-policy:	LGPL
+End

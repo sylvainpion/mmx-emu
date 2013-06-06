@@ -1,9 +1,9 @@
 /*
  * Emulation code of the conversion functions.
- * (C) Oliver Delise <delise@online-club.de>, July 1998, LGPL
+ * (C) Oliver Delise <delise@online-club.de>, 1998, LGPL
  */
 
-#include "mmx_emu.h"
+#include "emu.h"
 
 #define MMX_EMU_L_CON_MACRO(NAME, TYPE, LOOP)		\
 void NAME (void *src, void *dest) {			\

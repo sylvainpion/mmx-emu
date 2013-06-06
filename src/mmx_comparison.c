@@ -3,7 +3,7 @@
  * Copyright  Sylvain Pion, July 1998.
  */
 
-#include "mmx_emu.h"
+#include "emu.h"
 
 #define MMX_EMU_CMP_MACRO(NAME, TYPE, LOOP, SYMB)	\
 void NAME (void *src, void *dest) {			\

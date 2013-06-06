@@ -1,11 +1,13 @@
 Welcome to the MMX emulation library project for Linux !
 --------------------------------------------------------
 
-This is the first beta version 0.5.
+This is the beta version 0.6.
 It should emulate correctly all the Intel MMX instructions.
+Cyrix'EMMX and AMD'3DNow! instruction sets are supported,
+but less tested yet.
 
 
-It provides a simple way to execute (but slowly) binaries that use MMX
+It provides a simple (but slow) way to execute binaries that use MMX
 instructions, on processors that do not support them.
 
 It can be used if you want to develop MMX code, or execute MMX binaries, on a
@@ -15,19 +17,30 @@ slow, and MMX code is all about speed.
 
 As a test program, we use mmxtest (from libmmx-980616).  Please test it on your
 MMX programs, to check if it works exactly like on a real MMX processor.
+Please report your successes and failures to the list !
 
+Read the INSTALL file to know how to use it.
 
-The home page is located at the URL:
-http://www.inria.fr/prisme/personnel/pion/progs/linux/
+Here is a qualitative speed indication:
+- time taken to enter the sighandler and exit it:
+  2200 cycles on a Pentium MMX (9.5 micro second at 233MHz)
+  2850 cycles on a 486 DX4    (28.5 micro second at 100MHz)
+- this is done once per consecutive set of emulable instructions.
+- the emulation in itself should take ~200 cyles (?) per instruction on average.
+
+WWW:		http://www.inria.fr/prisme/personnel/pion/progs/mmx-emu/
+Mailing List:	mmx-emu@openhardware.org
+		(send a mail to mmx-emu-request@openhardware.org to subscribe)
+Archives:	http://www.openhardware.org/list-archives/
 
 
 Copyright:
 ----------
-This code is copyrighted by the following authors, and placed under the LGPL.
-See the file COPYING.LIB.
+The code is copyrighted by the following authors, and placed under the terms of
+the LGPL.  See the file COPYING.LIB for details.
 
 Authors:
 --------
-Sylvain Pion <Sylvain.Pion@sophia.inria.fr>   [core, cmp, logic, shifts]
-Oliver delise <delise@online-club.de>         [packs]
+Sylvain Pion <Sylvain.Pion@sophia.inria.fr>   [core, cmp, logic, shifts, 3dnow]
+Oliver Delise <delise@online-club.de>         [packs, 3dnow]
 Vincent Renardias <vincent@waw.com>           [arithmetic, cyrix]
