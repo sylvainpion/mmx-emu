@@ -3,9 +3,9 @@ typedef void (*FUNC)(void *, void *);
 
 #ifdef MMX_DEBUG
 #include <stdio.h>
-#define mmx_printf(a) printf(a)
+#define mmx_printf(args...) printf(## args)
 #else
-#define mmx_printf(a) /* */
+#define mmx_printf(args...) /* */
 #endif
 
 extern struct sigcontext * context;

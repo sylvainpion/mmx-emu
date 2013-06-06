@@ -1,0 +1,147 @@
+diff -u -r --new-file mmx-emu/Makefile mmx-emu-v/Makefile
+--- mmx-emu/Makefile	Fri Jul  3 20:30:22 1998
++++ mmx-emu-v/Makefile	Sun Jul  5 18:16:35 1998
+@@ -1,7 +1,7 @@
+ #### Automagic Makefile ####
+ 
+ CC = gcc
+-CFLAGS = -g -O -Wall -fpic -funroll-loops # -funroll-all-loops
++CFLAGS = -g -O -Wall -fpic -funroll-loops -DCYRIX_EMMX # -funroll-all-loops
+ # CFLAGS = -g -O -Wall -fpic -funroll-loops -DMMX_DEBUG
+ LDFLAGS = -shared
+ 
+@@ -9,7 +9,7 @@
+ 
+ all:	libmmxemu.so
+ 
+-libmmxemu.so: mmx_ill_handler.o mmx_emu.o mmx_arithmetic.o mmx_shift.o mmx_logical.o mmx_conversion.o mmx_comparison.o
++libmmxemu.so: mmx_ill_handler.o mmx_emu.o mmx_arithmetic.o mmx_shift.o mmx_logical.o mmx_conversion.o mmx_comparison.o mmx_cyrix.o
+ 	$(CC) $(LDFLAGS) -o $@ $?
+ 
+ clean:
+diff -u -r --new-file mmx-emu/mmx_cyrix.c mmx-emu-v/mmx_cyrix.c
+--- mmx-emu/mmx_cyrix.c	Thu Jan  1 01:00:00 1970
++++ mmx-emu-v/mmx_cyrix.c	Sun Jul  5 18:21:52 1998
+@@ -0,0 +1,61 @@
++/*
++ * Emulation code of the Cyrix-EMMX extensions.
++ * (C) <Vincent.Renardias@waw.com>, 1998, LGPL.
++ *
++ */
++
++#include "mmx_emu.h"
++
++#define	ABS(a)	( (a) > 0 ? (a) : (-a) )
++
++void paveb (void *src, void *dest)
++{
++	unsigned char *s = (char *) src;
++	unsigned char *d = (char *) dest;
++	int i;
++	for (i=0; i<8; i++) {
++		d[i] = ( d[i]+s[i] ) >> 1;
++	}
++        mmx_printf("paveb called\n");
++}
++
++void pdistib (void *src, void *dest) { mmx_printf("pdistib called\n"); }
++void pmachriw (void *src, void *dest) { mmx_printf("pmachriw called\n"); }
++
++void pmagw (void *src, void *dest) 
++{ 
++	char *s = (char *) src;	
++	char *d = (char *) dest;
++	int i;
++	for(i=0;i<8;i++) {
++	if (ABS(d[i]) > ABS(s[i])) 
++			d[i]=s[i];	
++	}
++	mmx_printf("pmagw called\n"); 
++}
++
++
++void pmulhrw (void *src, void *dest) { mmx_printf("pmulhrw called\n"); }
++void pmulhriw (void *src, void *dest) { mmx_printf("pmulhriw called\n"); }
++
++#define MACRO(NAME, SYMB) 		\
++void NAME (void *src, void *dest) 	\
++{ 					\
++	char *s = (char *) src;		\
++	char *d = (char *) dest;	\
++	int i;				\
++	for (i=0; i<8; i++) {		\
++		if (d[i] SYMB 0)	\
++			d[i] = s[i];	\
++	}				\
++	mmx_printf(NAME " called\n"); 	\
++}
++
++MACRO(pmvzb, ==)
++MACRO(pmvnzb, !=)
++MACRO(pmvlzb, <)
++MACRO(pmvgezb, >=)
++
++void psubsiw (void *src, void *dest) { mmx_printf("psubsiw called\n"); }
++void paddsiw (void *src, void *dest) { mmx_printf("paddsiw called\n"); }
++
+Binary files mmx-emu/mmx_cyrix.c.swp and mmx-emu-v/mmx_cyrix.c.swp differ
+diff -u -r --new-file mmx-emu/mmx_cyrix.h mmx-emu-v/mmx_cyrix.h
+--- mmx-emu/mmx_cyrix.h	Thu Jan  1 01:00:00 1970
++++ mmx-emu-v/mmx_cyrix.h	Sun Jul  5 18:21:27 1998
+@@ -0,0 +1,17 @@
++/*
++ * Emulation code of the arithmetic functions.
++ */
++
++extern void paveb(void *, void *);
++extern void pdistib(void *, void *);
++extern void pmachriw(void *, void *);
++extern void pmagw(void *, void *);
++extern void pmulhrw(void *, void *);
++extern void pmulhriw(void *, void *);
++extern void pmvzb(void *, void *);
++extern void pmvnzb(void *, void *);
++extern void pmvlzb(void *, void *);
++extern void pmvgezb(void *, void *);
++extern void psubsiw(void *, void *);
++extern void paddsiw(void *, void *);
++
+diff -u -r --new-file mmx-emu/mmx_ill_handler.c mmx-emu-v/mmx_ill_handler.c
+--- mmx-emu/mmx_ill_handler.c	Fri Jul  3 23:38:17 1998
++++ mmx-emu-v/mmx_ill_handler.c	Sun Jul  5 18:19:28 1998
+@@ -7,6 +7,9 @@
+ #include "mmx_shift.h"
+ #include "mmx_conversion.h"
+ #include "mmx_comparison.h"
++#ifdef CYRIX_EMMX
++#include "mmx_cyrix.h"
++#endif
+ 
+ /* Here's the SIGILL handler.
+  * If the application declares another one, it might override this one...
+@@ -18,8 +21,10 @@
+ 
+ 
+ /* 52 non-bad insns (there should be 57, no ???).
++ * +12 Cyrix-EMMX insns...
+  * Refer to http://developer.intel.com/drg/mmx/manuals/prm/PRM_APPD.HTM
+  * http://www.imada.ou.dk/~jews/PInfo/mmx.html  is interesting too.
++ * ftp://ftp.cyrix.com/6x86MX/docs/108ap.pdf for the Cyrix-EMMX insns.
+  */
+ 
+ static FUNC const mmx_insn[256] = {
+@@ -33,8 +38,13 @@
+ __BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,
+ __BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  , /* 4 */
+ __BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,
+-__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  , /* 5 */
++#ifdef CYRIX_EMMX
++paveb  ,paddsiw,pmagw  ,__BAD  ,pdistib,psubsiw,__BAD  ,__BAD  , /* 5 (Intel + Cyrix) */
++pmvzb  ,pmulhrw,pmvnzb ,pmvlzb,pmvgezb,pmulhriw,pmachriw,__BAD ,
++#else
++__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  , /* 5 (Intel only) */
+ __BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,__BAD  ,
++#endif
+ /* Here: cmps, [un]pack, pshi* (consts shifts), emms, mov[dq] */
+ /* 0-8 ,  1-9  ,  2-a  ,  3-b  ,  4-c  ,  5-d  ,  6-e  ,  7-f  */
+ punpcklbw,punpcklwd,punpckldq,packsswb,pcmpgtb,pcmpgtw,pcmpgtd,packuswb, /* 6 */

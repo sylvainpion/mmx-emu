@@ -1,6 +1,11 @@
-Welcome to the MMX emulation library project !
+Welcome to the MMX emulation library project for Linux !
+--------------------------------------------------------
 
-It provides a simple way to execute (thus slowly) binaries that use MMX
+This is the first beta version 0.5.
+It should emulate correctly all the Intel MMX instructions.
+
+
+It provides a simple way to execute (but slowly) binaries that use MMX
 instructions, on processors that do not support them.
 
 It can be used if you want to develop MMX code, or execute MMX binaries, on a
@@ -8,13 +13,21 @@ non-MMX Intel compatible CPU.  Note that well written MMX binaries should
 contain the equivalent non-MMX code, since the emulation will always be really
 slow, and MMX code is all about speed.
 
-As a test program, I used mmxtest, from libmmx-980616, foundable on sunsite, in linux/libs.
+As a test program, we use mmxtest (from libmmx-980616).  Please test it on your
+MMX programs, to check if it works exactly like on a real MMX processor.
 
---
-This code is copyrighted by the following authors, and placed under the LGPL
-(GNU's Library General Public License, cf www.gnu.org for details).
+
+The home page is located at the URL:
+http://www.inria.fr/prisme/personnel/pion/progs/linux/
+
+
+Copyright:
+----------
+This code is copyrighted by the following authors, and placed under the LGPL.
+See the file COPYING.LIB.
 
 Authors:
+--------
 Sylvain Pion <Sylvain.Pion@sophia.inria.fr>   [core, cmp, logic, shifts]
-OLK <delise@online-club.de>                   []
-Vincent Renardias <vincent@waw.com>           []
+Oliver delise <delise@online-club.de>         [packs]
+Vincent Renardias <vincent@waw.com>           [arithmetic, cyrix]

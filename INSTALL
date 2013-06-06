@@ -1,6 +1,10 @@
-To build libmmxemu.so, just type "make".
+"make"		builds libmmxemu.so
+"make test"	builds and runs the test-suite
+"make clean"	cleans up the source tree.
 
-To make it work on "program", just type:
+
+After the built, only libmmxemu.so is needed, you can remove everything else.
+To make it work on the program "program", just type:
 
 LD_PRELOAD=/the/path/of/libmmxemu.so  program
 

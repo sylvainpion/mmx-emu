@@ -1,0 +1,5 @@
+The test-suite consist of:
+--------------------------
+
+1/  mmxtest.c and mmx.h are modified version coming from libmmx-980616.
+

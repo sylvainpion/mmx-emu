@@ -1,3 +1,8 @@
+/*
+ * Main code of the MMX emulator (signal handler, opcode decoding).
+ * Copyright  Sylvain Pion, July 1998.
+ */
+
 #include <stdio.h>
 #include <signal.h>
 #include <asm/sigcontext.h>
@@ -8,16 +13,18 @@
 #include "mmx_conversion.h"
 #include "mmx_comparison.h"
 
-/* Here's the SIGILL handler.
- * If the application declares another one, it might override this one...
- * Also to speed up, we might use sigaction, with well thought flags.
- */
-
 #define __BAD  MMX_illegal
 #define u_char unsigned char
 
+int pshi_diff; // Used temporarily to differentiate pshi*.
+struct sigcontext * context;
+#define REG_(reg) (*((&(context->eax)) - (reg)))
 
-/* 52 non-bad insns (there should be 57, no ???).
+void mmx_emu_main(void)  __attribute__ ((constructor));
+void mmx_ill_handler(int);
+static int sib(int mod, unsigned * mmx_eip);
+
+/* 57 base MMX instructions.
  * Refer to http://developer.intel.com/drg/mmx/manuals/prm/PRM_APPD.HTM
  * http://www.imada.ou.dk/~jews/PInfo/mmx.html  is interesting too.
  */
@@ -61,11 +68,8 @@ psubb  ,psubw  ,psubd  ,__BAD  ,paddb  ,paddw  ,paddd  ,__BAD
 /* 0-8 ,  1-9  ,  2-a  ,  3-b  ,  4-c  ,  5-d  ,  6-e  ,  7-f  */
 };
 
-struct sigcontext * context;
-#define REG_(reg) (*((&(context->eax)) - (reg)))
-
 // This function is adapted from the (kernel land) FPU-emulator.
-static int sib(int mod, unsigned long *mmx_eip)
+static int sib(int mod, unsigned * mmx_eip)
 {
   u_char ss,index,base;
   long offset;
@@ -80,9 +84,7 @@ static int sib(int mod, unsigned long *mmx_eip)
     offset = 0;              /* No base register */
   else {
     offset = REG_(base);
-#ifdef MMX_DEBUG
-    printf("Base register: %d    (offset = %ld)\n", base, offset);
-#endif
+    mmx_printf("Base register: %d    (offset = %ld)\n", base, offset);
   };
 
   if (index == 4)
@@ -96,10 +98,8 @@ static int sib(int mod, unsigned long *mmx_eip)
   else
     {
       offset += (REG_(index)) << ss;
-#ifdef MMX_DEBUG
-      printf("Index register: %d\n", index);
-      printf("Scale factor: %d    (offset = %ld)\n", ss, offset);
-#endif
+      mmx_printf("Index register: %d\n", index);
+      mmx_printf("Scale factor: %d    (offset = %ld)\n", ss, offset);
     }
 
   if (mod == 1)
@@ -120,77 +120,72 @@ static int sib(int mod, unsigned long *mmx_eip)
       (*mmx_eip) += 4;
     }
 
-#ifdef MMX_DEBUG
-  printf("offset = %ld\n", offset);
-#endif
+  mmx_printf("offset = %ld\n", offset);
   return offset;
 }
-
-void mmx_emu_main(void)  __attribute__ ((constructor));
-void mmx_ill_handler(int);
 
 void mmx_emu_main(void)
 {
         if (SIG_ERR == signal(SIGILL, mmx_ill_handler))
                 printf("SIG_ILL handler not installed sucessfully.\n");
-
+#ifdef MMX_DEBUG
         printf("SIG_ILL handler installed by the MMX-emulator.\n");
+#endif
 }
 
-int pshi_diff; // Used temporarily to differentiate pshi*.
 
+/* Here's the SIGILL handler.
+ * If the application declares another one, it might override this one...
+ * Also to speed up, we might use sigaction, with well thought flags.
+ */
 
-// The SIGILL handler properly.
 void mmx_ill_handler(int sig_nr)
 {
-	int pipo;	// HAS TO STAY HERE, till a cleaner solution is found.
-#ifdef MMX_DEBUG
+/* pipo HAS TO STAY EXACTLY HERE, till a cleaner solution is found. */
+	int pipo;
 	int i, j;
-#endif
-	unsigned long mmx_eip;
+	unsigned rm, mmx_eip;
 	u_char prefix, insn, modrm, mod; // sib;
-	unsigned rm;
 	void *src = NULL, *dest = NULL;
-	unsigned char immediate;
+	unsigned long long immediate;
 
+/* Is there a cleaner way for that ? */
 	context = (struct sigcontext *) (&pipo + 4);
-		// Is there a cleaner way for that ?
+	mmx_eip = context->eip;
 
 	if (sig_nr != SIGILL)  printf("You crazy guy !\n");
 
-/* Prints the whole context.
-        printf("context      = %08lx\n", (long) context);
+    do {   /* Look-ahead loop */
+
+/* Prints the whole context. */
+        mmx_printf("context      = %08lx\n", (long) context);
 
 	for (i=0; i<(sizeof(struct sigcontext)/4); i++)
-		printf("%08lx", ((long *) context)[i]);
-	printf("\n");
-*/
+		mmx_printf("%08lx", ((long *) context)[i]);
+	mmx_printf("\n");
 
 /* Prints the whole FPU/MMX registers.  */
-#ifdef MMX_DEBUG
 	for (i=0; i<8; i++) {
-		printf("%%mm%d = ", i);
+		mmx_printf("%%mm%d = ", i);
 		for (j=3; j>=0; j--)
-			printf("%04x", context->fpstate->_st[i].significand[j]);
-		printf(" %04x", context->fpstate->_st[i].exponent);
-		printf((i&1) ? "\n" : "\t");
+		    mmx_printf("%04x", context->fpstate->_st[i].significand[j]);
+		mmx_printf(" %04x", context->fpstate->_st[i].exponent);
+		mmx_printf((i&1) ? "\n" : "\t");
 	}
-#endif
 
-	mmx_eip = context->eip;
-#ifdef MMX_DEBUG
-        printf("EIP = %08lx (code: %02x %02x %02x %02x %02x %02x %02x %02x)\n",
+/* Prints the opcodes, byte by byte. */
+        mmx_printf("EIP = %08lx (code: %02x %02x %02x %02x %02x %02x %02x %02x)\n",
 		mmx_eip,
 		((u_char *) mmx_eip)[0], ((u_char *) mmx_eip)[1],
 		((u_char *) mmx_eip)[2], ((u_char *) mmx_eip)[3],
 		((u_char *) mmx_eip)[4], ((u_char *) mmx_eip)[5],
 		((u_char *) mmx_eip)[6], ((u_char *) mmx_eip)[7]);
-#endif
 	
 	prefix = ((u_char *) mmx_eip)[0];
 	++mmx_eip;
 	if (prefix != 0x0f) {
-		MMX_illegal(NULL,NULL);
+		goto not_for_mmx_emu;
+		// MMX_illegal(NULL,NULL);
 	} else {
 		insn = ((u_char *) mmx_eip)[0];
 		++mmx_eip;
@@ -214,20 +209,17 @@ void mmx_ill_handler(int sig_nr)
 					src  = &(context->fpstate->_st[rm]);
 					dest = &(context->fpstate->_st[(modrm>>3) & 7]);
 				};
-#ifdef MMX_DEBUG
-				printf("src  = %08lx (%%mm%d)\t", (long) src, rm);
-				printf("dest = %08lx (%%mm%d)\n", (long) dest, (modrm>>3) & 7);
-#endif
+	mmx_printf("src  = %08lx (%%mm%d)\t", (long) src, rm);
+	mmx_printf("dest = %08lx (%%mm%d)\n", (long) dest, (modrm>>3) & 7);
 				break;
-			case 1: /* dest is always an mmxreg, except for mov[dq]2mem */
-/* See FPU_get_address() and sib() in get_Adress.c (math-emu) */
+			case 1:
+	/* dest is always an mmxreg, except for mov[dq]2mem */
+	/* See FPU_get_address() and sib() in get_Adress.c (math-emu) */
 				src = REG_(rm) + sib(mod, &mmx_eip);
 				dest = &(context->fpstate->_st[(modrm>>3) & 7]);
-#ifdef MMX_DEBUG
-				printf("src register -> %d\n", rm);
-				printf("src  = %08lx \t", (long) src);
-				printf("dest = %08lx (%%mm%d)\n", (long) dest, (modrm>>3) & 7);
-#endif
+	mmx_printf("src register -> %d\n", rm);
+	mmx_printf("src  = %08lx \t", (long) src);
+	mmx_printf("dest = %08lx (%%mm%d)\n", (long) dest, (modrm>>3) & 7);
 				break;
 			default:
 				printf("ModR/M unknown: %08x\n", modrm);
@@ -239,17 +231,16 @@ void mmx_ill_handler(int sig_nr)
 		mmx_insn[insn](src, dest);
 	};
 	
-	// Point to the next insn. (FIXME: if successful only)
-#ifdef MMX_DEBUG
-	printf("New EIP: %08lx\n", mmx_eip);
-#endif
+	mmx_printf("New EIP: %08lx\n", mmx_eip);
 	context->eip = mmx_eip;
+
+    } while(1);
+
+not_for_mmx_emu:
 
         if (SIG_ERR == signal(SIGILL, mmx_ill_handler))
                 printf("SIG_ILL handler not re-installed sucessfully.\n");
 
-#ifdef MMX_DEBUG
-	printf("-----\n");
-#endif
+	mmx_printf("----- exiting MMX-Emu sigill handler\n");
 	return;
 }

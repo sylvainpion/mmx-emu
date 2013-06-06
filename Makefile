@@ -1,16 +1,14 @@
 #### Automagic Makefile ####
 
-CC = gcc
-CFLAGS = -g -O -Wall -fpic -funroll-loops # -funroll-all-loops
-# CFLAGS = -g -O -Wall -fpic -funroll-loops -DMMX_DEBUG
-LDFLAGS = -shared
+.PHONY: test
 
-###########################################
+all:
+	$(MAKE) -C src
 
-all:	libmmxemu.so
-
-libmmxemu.so: mmx_ill_handler.o mmx_emu.o mmx_arithmetic.o mmx_shift.o mmx_logical.o mmx_conversion.o mmx_comparison.o
-	$(CC) $(LDFLAGS) -o $@ $?
+test:
+	$(MAKE) -C test
 
 clean:
-	rm -f *.o libmmxemu.so core
+	$(MAKE) -C src clean
+	$(MAKE) -C test clean
+	rm -f libmmxemu.so core
