@@ -9,9 +9,12 @@
 void NAME (void *src, void *dest) {			\
         int i;						\
         TYPE *d = (TYPE *) dest;			\
-        unsigned int s = * (unsigned int *) src;	\
-        for (i=0; i < LOOP; i++)			\
-                d[i] = d[i] SYMB s;			\
+        unsigned long s = * (unsigned long *) src;      \
+        if (LOOP == 1 && s >= 64) s = 64;               \
+        if (LOOP == 2 && s >= 32) s = 32;               \
+        if (LOOP == 4 && s >= 16) s = 16;               \
+        for (i=0; i < LOOP; i++)                        \
+                if (s > 0) d[i]=(d[i] SYMB s-1) SYMB 1; \
         mmx_printf(#NAME " called\n");			\
 }
 

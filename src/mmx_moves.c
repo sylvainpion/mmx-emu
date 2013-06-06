@@ -10,7 +10,7 @@
 void NAME (void *src, void *dest) {             \
         TYPE *s = (TYPE *) src;			\
         TYPE *d = (TYPE *) dest;		\
-	*s = *d;				\
+	*d = *s;				\
         mmx_printf(#NAME " called\n");		\
 }
 
